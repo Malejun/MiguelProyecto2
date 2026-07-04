@@ -24,6 +24,8 @@ export const login = async (req, res, next) => {
     expiresAt: new Date() + 3_600_000,
     httpOnly: true,
     secure: true, // true en prod
+    sameSite: "none",  // obligatorio para cookies cross-site
+    path: "/"
   });
 
   return res.status(200).json({
