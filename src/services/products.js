@@ -1,5 +1,12 @@
 import { prisma } from "../db/config.js";
 import { catcher, isString } from "../utils/common.js";
+import { uploadImageToCloudinary } from "../utils/cloudinary.js";
+
+const normalizeProductPayload = ({ year, price, imageFile, ...rest }) => ({
+  year: isString(year),
+  price: price === undefined || price === null ? null : Number(price),
+  ...rest,
+});
 
 const selectAllProducts = async (productsIds) => {
   return await prisma.product.findMany({
@@ -8,13 +15,27 @@ const selectAllProducts = async (productsIds) => {
   });
 };
 
-const insertProduct = async ({ year, ...rest }) => {
-  const newProduct = { year: isString(year), ...rest };
+const insertProduct = async (payload) => {
+  const { imageFile, ...rest } = payload;
+  const newProduct = normalizeProductPayload(rest);
+
+  if (imageFile) {
+    const uploadedImage = await uploadImageToCloudinary(imageFile);
+    newProduct.imageUrl = uploadedImage.secure_url;
+  }
+
   await prisma.product.create({ data: newProduct });
 };
 
-const updateProductDB = async (productId, { year, ...rest }) => {  
-    const updatedData = { year: isString(year), ...rest };    
+const updateProductDB = async (productId, payload) => {  
+    const { imageFile, ...rest } = payload;
+    const updatedData = normalizeProductPayload(rest);    
+
+    if (imageFile) {
+      const uploadedImage = await uploadImageToCloudinary(imageFile);
+      updatedData.imageUrl = uploadedImage.secure_url;
+    }
+
     await prisma.product.update({
       where: { id: productId },
       data: updatedData
