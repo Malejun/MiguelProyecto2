@@ -31,7 +31,6 @@ const reviewSchema = new Schema(
   }
 );
 
-
 reviewSchema.index(
   {
     userId: 1,
@@ -43,5 +42,34 @@ reviewSchema.index(
 );
 
 
+const cartItemSchema = new Schema({
+  productId: { type: String, required: true },
+  quantity: { type: Number, required: true, default: 1, min: 1 },
+}, { _id: true });
+
+const cartSchema = new Schema(
+  {
+    userId: { type: String, required: true, unique: true },
+    items: { type: [cartItemSchema], default: [] },
+    status: { type: String, enum: ["ACTIVE", "CHECKED_OUT"], default: "ACTIVE" },
+  },
+  {
+    timestamps: { createdAt: true, updatedAt: false },
+  },
+);
+
+const orderSchema = new Schema(
+  {
+    userId: { type: String, required: true },
+    items: { type: [cartItemSchema], default: [] },
+    status: { type: String, default: "PENDING" },
+  },
+  {
+    timestamps: { createdAt: true, updatedAt: false },
+  },
+);
+
 export const Wishlist = model("Wishlist", wishlistSchema);
 export const Review = model("Review", reviewSchema);
+export const Cart = model("Cart", cartSchema);
+export const Order = model("Order", orderSchema);
