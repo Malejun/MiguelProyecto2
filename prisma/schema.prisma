@@ -23,7 +23,7 @@ model Product {
   id        String   @id @default(uuid())
   name      String
   brand     String?
-  year      String
+  year      String?
   rating    Int?
   price     Float?
   imageUrl  String?  @map("image_url")
