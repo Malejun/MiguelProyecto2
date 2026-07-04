@@ -19,8 +19,11 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: "http://localhost:4000", // donde corre Swagger
+app.use(cors({  
+  origin: [
+    "https://miguelproyecto2.onrender.com",   
+    "http://localhost:4000" 
+  ],
   credentials: true
 }));
 
