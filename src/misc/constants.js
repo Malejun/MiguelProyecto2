@@ -2,10 +2,16 @@ const PORT = process.env.PORT;
 const DB_URL = process.env.DATABASE_URL;
 const SECRET = process.env.JWT_SECRET;
 const MONGO_URI = process.env.MONGO_DB_URI;
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
+const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
 
 export default {
   PORT,
   DB_URL,
   SECRET,
   MONGO_URI,
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
 };
