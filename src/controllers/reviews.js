@@ -23,7 +23,6 @@ export const listReviews = async (req, res, next) => {
   const { productId } = req.params;
   
   const result = await selectAllReviews(productId);
-  console.log("result listReviews", result);
   return res.status(200).json({
     success: true,
     data: result.content,
