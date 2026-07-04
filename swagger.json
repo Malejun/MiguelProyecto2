@@ -1,0 +1,482 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TB Backend API",
+    "version": "1.0.0",
+    "description": "API para autenticación, productos, carrito, checkout, reseñas y wishlist"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "access_token",
+        "description": "Cookie de sesión generada por el login"
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Registrar un nuevo usuario",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "email", "password"],
+                "properties": {
+                  "username": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": { "type": "string" },
+                  "bio": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Usuario registrado correctamente" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login correcto" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Cerrar sesión",
+        "tags": ["Auth"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": { "description": "Logout correcto" }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "Listar todos los productos",
+        "tags": ["Products"],
+        "responses": {
+          "200": {
+            "description": "Lista de productos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un producto (con imagen opcional)",
+        "tags": ["Products"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "example": "Camiseta" },
+                  "brand": { "type": "string", "example": "Nike" },
+                  "year": { "type": "string", "example": "2024" },
+                  "rating": { "type": "integer", "example": 5 },
+                  "price": { "type": "number", "example": 29.99 },
+                  "imageFile": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Producto creado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      }
+    },
+    "/products/{productId}": {
+      "get": {
+        "summary": "Obtener un producto por id",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Producto encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Actualizar un producto (con imagen opcional)",
+        "tags": ["Products"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "brand": { "type": "string" },
+                  "year": { "type": "string" },
+                  "rating": { "type": "integer" },
+                  "price": { "type": "number" },
+                  "imageFile": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Producto actualizado" }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un producto",
+        "tags": ["Products"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Producto eliminado" }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "summary": "Obtener el carrito del usuario",
+        "tags": ["Cart"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carrito del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "userId": { "type": "string" },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "productId": { "type": "string" },
+                              "quantity": { "type": "integer" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/items": {
+      "post": {
+        "summary": "Agregar un producto al carrito",
+        "tags": ["Cart"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["productId"],
+                "properties": {
+                  "productId": { "type": "string", "example": "prod_123" },
+                  "quantity": { "type": "integer", "example": 1 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto agregado al carrito"
+          }
+        }
+      }
+    },
+    "/cart/items/{itemId}": {
+      "delete": {
+        "summary": "Eliminar o reducir un producto del carrito",
+        "tags": ["Cart"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "El productId del producto a eliminar/reducir"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado o cantidad reducida"
+          }
+        }
+      }
+    },
+    "/cart/checkout": {
+      "post": {
+        "summary": "Realizar checkout y crear un pedido",
+        "tags": ["Cart"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedido creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "userId": { "type": "string" },
+                        "orderId": { "type": "string" },
+                        "status": { "type": "string" },
+                        "items": {
+                          "type": "array"
+                        },
+                        "cartStatus": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "El carrito está vacío"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Listar usuarios",
+        "tags": ["Users"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de usuarios" }
+        }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "summary": "Obtener perfil del usuario autenticado",
+        "tags": ["Users"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": { "description": "Perfil del usuario" }
+        }
+      }
+    },
+    "/review/{productId}": {
+      "post": {
+        "summary": "Crear una reseña para un producto",
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["comment"],
+                "properties": {
+                  "comment": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Reseña creada" }
+        }
+      },
+      "get": {
+        "summary": "Listar reseñas de un producto",
+        "tags": ["Reviews"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Lista de reseñas" }
+        }
+      }
+    },
+    "/wishlist/{productId}": {
+      "post": {
+        "summary": "Añadir un producto a la wishlist",
+        "tags": ["Wishlist"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Producto añadido a la wishlist" }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un producto de la wishlist",
+        "tags": ["Wishlist"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Producto eliminado de la wishlist" }
+        }
+      }
+    },
+    "/wishlist": {
+      "get": {
+        "summary": "Listar productos de la wishlist del usuario autenticado",
+        "tags": ["Wishlist"],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": { "description": "Wishlist del usuario" }
+        }
+      }
+    }
+  }
+}
