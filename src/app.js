@@ -29,6 +29,10 @@ app.use("/wishlist", wishlistsRoutes);
 app.use("/review", reviewsRoutes);
 app.use("/cart", cartRoutes);
 
+app.get("/health", (req,res)=>{
+  res.json({status:"ok"})
+})
+
 app.use((_, __, next) => {
   return next(Selector.NOT_FOUND);
 });
