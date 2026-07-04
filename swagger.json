@@ -9,17 +9,7 @@
     {
       "url": "http://localhost:4000"
     }
-  ],
-  "components": {
-    "securitySchemes": {
-      "cookieAuth": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "access_token",
-        "description": "Cookie de sesión generada por el login"
-      }
-    }
-  },
+  ],  
   "paths": {
     "/auth/register": {
       "post": {

@@ -19,9 +19,18 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:4000", // donde corre Swagger
+  credentials: true
+}));
 
-app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use("/api/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument, {
+    swaggerOptions: {
+      withCredentials: true
+    }
+  }));
+
+
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/products", productsRoutes);
